@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+</head>
+<style>
+    body {
+        background-color: white;
+    }
+
+    .card {
+        background: linear-gradient(500deg , rgb(59, 211, 133), rgb(82, 195, 247));
+        width: 400px;
+        height: 550px;
+        text-align: center;
+        color: rgb(86, 83, 83);
+        padding: 10px;
+        margin: 50px;
+        margin-left: auto;
+        margin-right: auto;
+        border-radius: 30px;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    }
+
+    input {
+        border: 0px;
+        padding: 15px;
+        width: 250px;
+        border-radius: 50px;
+        background-color: white;
+        font-size: 20px;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+    input:hover {
+        border-color: cornflowerblue;
+    }
+
+    .card button {
+        border: 0;
+        border-radius: 50px;
+        padding: 15px;
+        background-color: rgb(69, 181, 236);
+        color: white;
+        font-size: 20px;
+    }
+
+    button:hover {
+        background-color: rgb(13, 13, 177);
+    }
+
+    .weather-icon {
+        margin-top: 15px;
+        display: none;
+    }
+</style>
+
+<body>
+    <div class="card">
+        <h1>Weather App</h1>
+        <input type="text" id="input" placeholder="Enter city name"><br><br>
+        <button onclick="getWeather()">Get Weather</button>
+        <h2 id="city"></h2>
+        <div id="weather-info">
+            <img id="weather-icon" class="weather-icon" alt="Weather Icon" height="100px">
+            <h2 id="temperature"></h2>
+            <h2 id="description"></h2>
+        </div>
+    </div>
+
+    <script>
+        const apiKey = "f00c38e0279b7bc85480c3fe775d518c";
+
+        async function getWeather() {
+            let input = document.getElementById("input");
+            let cityElem = document.getElementById("city");
+            let tempElem = document.getElementById("temperature");
+            let descElem = document.getElementById("description");
+            let iconElem = document.getElementById("weather-icon");
+
+            let city = input.value.trim();
+            input.value = "";
+
+            if (!city) {
+                alert("Please enter a valid city name.");
+                return;
+            }
+
+            cityElem.innerHTML = `Weather in ${city}`;
+            cityElem.style.color = 'black';
+            cityElem.style.fontFamily = 'Arial, Helvetica, sans-serif';
+           
+
+            try {
+                const response = await fetch(
+                    `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`
+                );
+
+                if (response.ok) {
+                    const data = await response.json();
+
+                    const temperature = data.main.temp;
+                    const description = data.weather[0].description;
+                    const iconCode = data.weather[0].icon;
+
+                    iconElem.src = `http://openweathermap.org/img/wn/${iconCode}@2x.png`;
+                    iconElem.style.display = "inline-block";
+                    iconElem.style.height = "150px";
+                  iconElem.style.width = "150px";
+
+                    tempElem.innerHTML = `Temperature: ${temperature}°C`;
+                    tempElem.style.color="rgb(86, 83, 83)";
+                    descElem.innerHTML = `Conditions: ${description}`;
+
+                } else {
+                    cityElem.innerHTML = "City not found. Please try again.";
+                    tempElem.innerHTML = "";
+                    descElem.innerHTML = "";
+                    iconElem.style.display = "none";
+                    cityElem.style.color = 'red';
+                    cityElem.style.fontFamily = 'monospace';
+
+                }
+            }
+             catch (error) {
+                cityElem.innerHTML = "Error fetching weather data.";
+                cityElem.style.color = 'red';
+                tempElem.innerHTML = "";
+                descElem.innerHTML = "";
+                iconElem.style.display = "none";
+                console.error("Error:", error);
+            }
+        }
+    </script>
+</body>
+
+</html>
